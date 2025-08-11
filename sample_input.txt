@@ -1,0 +1,52 @@
+# Knapsack Problem Sample Input:
+Enter the capacity of the knapsack: 15
+Enter number of items: 4
+Enter item ID for the item 1: A1
+Enter weight of the item 1: 2
+Enter profit/value of the item 1: 10
+
+Enter item ID for the item 2: A2
+Enter weight of the item 2: 5
+Enter profit/value of the item 2: 15
+
+Enter item ID for the item 3: A3
+Enter weight of the item 3: 8
+Enter profit/value of the item 3: 20
+
+Enter item ID for the item 4: A4
+Enter weight of the item 4: 4
+Enter profit/value of the item 4: 12
+
+# Expected Output:
+Selected Items:
+Item ID: A1, Weight: 2, Value: 10
+Item ID: A2, Weight: 5, Value: 15
+Item ID: A4, Weight: 4, Value: 12
+
+Total Value: 37
+Total Weight: 11
+
+# Job Scheduling Problem Sample Input:
+Enter the maximum time frame: 3
+Enter number of jobs: 4
+Enter job ID for job 1: J1
+Enter deadline for job 1: 2
+Enter profit for job 1: 100
+
+Enter job ID for job 2: J2
+Enter deadline for job 2: 1
+Enter profit for job 2: 50
+
+Enter job ID for job 3: J3
+Enter deadline for job 3: 2
+Enter profit for job 3: 80
+
+Enter job ID for job 4: J4
+Enter deadline for job 4: 1
+Enter profit for job 4: 30
+
+# Expected Output:
+Scheduled Jobs:
+Job ID: J2, Profit: 50
+Job ID: J1, Profit: 100
+Job ID: J3, Profit: 80
