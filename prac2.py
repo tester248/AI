@@ -14,8 +14,7 @@ def manhattan_distance(board):
     return distance
 
 def count_inversions(board):
-    inversions = 0
-    
+    inversions = 0 
     # Get positions of each number in both current and goal states (excluding 0)
     current_positions = {}
     goal_positions = {}
@@ -85,38 +84,83 @@ def a_star(start):
     
     return None
 
-if __name__ == "__main__":
-
-    initial_state = [1, 2, 3,
-                     4, 5, 6, 
-                     7, 8, 0]
+def get_user_input():
+    print("Enter the initial puzzle state:")
+    print("Use numbers 1-8 and 0 for the blank space")
+    print("Enter 9 numbers separated by spaces (row by row):")
     
+    while True:
+        try:
+            user_input = input("Enter puzzle state: ").strip().split() 
+            if len(user_input) != 9:
+                print("Error: Please enter exactly 9 numbers.")
+                continue
+            # Convert to integers
+            puzzle = [int(x) for x in user_input]
+            if sorted(puzzle) != list(range(9)):
+                print("Error: Please use numbers 0-8 exactly once each.")
+                continue          
+            return puzzle
+        except ValueError:
+            print("Error: Please enter only numbers.")
+            continue
+
+def display_menu():
+    print("== 8 Puzzle Solver ==")
+    print("1. Input puzzle state")
+    print("2. Quit")
+
+
+def solve_puzzle(initial_state):
     if initial_state == GOAL_STATE:
         print("Puzzle is already solved!")
         print_board(initial_state)
-        exit()
+        return
     
     if not is_solvable(initial_state):
         print("This puzzle configuration is not solvable!")
-        exit()
+        return
     
     print("Puzzle is solvable. Finding solution...")
     solution = a_star(initial_state)
 
     if solution:
-        print("Solution found:")
+        print(f"Solution found in {len(solution)} moves:")
         current = initial_state
+        print("Initial state:")
         print_board(current)
         
-        for move in solution:
-            blank_pos = current.index(0)
+        for i, move in enumerate(solution, 1):
             neighbors = get_neighbors(current)
             for board, direction in neighbors:
                 if direction == move:
                     current = board
                     break
-            print(f"Move: {move}")
+            print(f"Step {i}: Move {move}")
             print_board(current)
     else:
         print("No solution exists.")
 
+if __name__ == "__main__":
+    while True:
+        display_menu()      
+        try:
+            choice = input("Enter your choice (1-2): ").strip()         
+            if choice == '1':
+                initial_state = get_user_input()
+                print("\nYou entered:")
+                print_board(initial_state)
+                
+                confirm = input("Is this correct? (y/n): ").strip().lower()
+                if confirm == 'y':
+                    solve_puzzle(initial_state)
+                else:
+                    print("Please try again.")        
+            elif choice == '2':
+                print("Thank you for using 8-Puzzle Solver!")
+                break            
+            else:
+                print("Invalid choice. Please enter 1 or 2.")              
+        except KeyboardInterrupt:
+            print("\n\nQuitting..")
+            break
