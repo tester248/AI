@@ -1,13 +1,14 @@
 class TicTacToe:
-    def __init__(self):
+    def __init__(self, difficulty='medium'):
         self.board = [' ' for _ in range(9)]
         self.current_player = 'X'
+        self.difficulty = difficulty
     
     def print_board(self):
         for i in range(0, 9, 3):
-            print(f" {self.board[i]} || {self.board[i+1]} || {self.board[i+2]} ")
+            print(f" {self.board[i]} | {self.board[i+1]} | {self.board[i+2]} ")
             if i < 6:
-                print("=============")
+                print("———————————")
     
     def is_winner(self, player):
         win_patterns = [
@@ -39,6 +40,15 @@ class TicTacToe:
             return -1
         else:
             return 0
+    
+    def get_depth_for_difficulty(self):
+        depth_map = {
+            'easy': 1,
+            'medium': 3,
+            'hard': 6,
+            'impossible': 9
+        }
+        return depth_map.get(self.difficulty, 3)
 
 def minimax_alpha_beta(game, depth, alpha, beta, maximizing_player):
     if game.is_winner('X'):
@@ -72,17 +82,18 @@ def minimax_alpha_beta(game, depth, alpha, beta, maximizing_player):
         return min_eval
 
 def get_best_move(game, player):
+    depth = game.get_depth_for_difficulty()
     best_score = float('-inf') if player == 'X' else float('inf')
     best_move = None
     for move in game.get_available_moves():
         game.make_move(move, player)
         if player == 'X':
-            score = minimax_alpha_beta(game, 9, float('-inf'), float('inf'), False)
+            score = minimax_alpha_beta(game, depth, float('-inf'), float('inf'), False)
             if score > best_score:
                 best_score = score
                 best_move = move
         else:
-            score = minimax_alpha_beta(game, 9, float('-inf'), float('inf'), True)
+            score = minimax_alpha_beta(game, depth, float('-inf'), float('inf'), True)
             if score < best_score:
                 best_score = score
                 best_move = move
@@ -91,16 +102,36 @@ def get_best_move(game, player):
     return best_move
 
 def main():
-    game = TicTacToe()
+    print("Welcome to Tic-Tac-Toe!")
+    print("Difficulty levels:")
+    print("1. Easy")
+    print("2. Medium") 
+    print("3. Hard")
+    print("4. Impossible")
+    
+    while True:
+        try:
+            choice = int(input("Select difficulty (1-4): "))
+            difficulty_map = {1: 'easy', 2: 'medium', 3: 'hard', 4: 'impossible'}
+            if choice in difficulty_map:
+                difficulty = difficulty_map[choice]
+                break
+            else:
+                print("Please enter a number between 1-4.")
+        except ValueError:
+            print("Please enter a valid number.")
+    
+    game = TicTacToe(difficulty)
+    print(f"Starting game on {difficulty} difficulty!")
     
     while True:
         game.print_board()
         
         if game.is_winner('X'):
-            print("X wins!")
+            print("X wins! (You won!)")
             break
         elif game.is_winner('O'):
-            print("O wins!")
+            print("O wins! (AI won.)")
             break
         elif game.is_board_full():
             print("It's a tie!")

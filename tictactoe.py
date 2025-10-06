@@ -1,156 +1,126 @@
 class TicTacToe:
     def __init__(self):
-        self.board = [' ' for _ in range(9)]  # 3x3 board as 1D array
+        self.board = [' ' for _ in range(9)]
         self.current_player = 'X'
     
     def print_board(self):
-        print(f" {self.board[0]} | {self.board[1]} | {self.board[2]} ")
-        print("-----------")
-        print(f" {self.board[3]} | {self.board[4]} | {self.board[5]} ")
-        print("-----------")
-        print(f" {self.board[6]} | {self.board[7]} | {self.board[8]} ")
-        print()
+        for i in range(0, 9, 3):
+            print(f" {self.board[i]} | {self.board[i+1]} | {self.board[i+2]} ")
+            if i < 6:
+                print("———————————")
+    
+    def is_winner(self, player):
+        win_patterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  #rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  #columns
+            [0, 4, 8], [2, 4, 6]              #diagonals
+        ]
+        return any(all(self.board[i] == player for i in pattern) for pattern in win_patterns)
+    
+    def is_board_full(self):
+        return ' ' not in self.board
+    
+    def get_available_moves(self):
+        return [i for i, cell in enumerate(self.board) if cell == ' ']
     
     def make_move(self, position, player):
-        """Make a move and return new board state"""
         if self.board[position] == ' ':
-            new_board = self.board.copy()
-            new_board[position] = player
-            return new_board
-        return None
+            self.board[position] = player
+            return True
+        return False
     
-    def is_winner(self, board, player):
-        """Check if player has won"""
-        win_patterns = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
-            [0, 4, 8], [2, 4, 6]              # diagonals
-        ]
-        return any(all(board[i] == player for i in pattern) for pattern in win_patterns)
+    def undo_move(self, position):
+        self.board[position] = ' '
     
-    def is_board_full(self, board):
-        """Check if board is full"""
-        return ' ' not in board
-    
-    def is_terminal(self, board):
-        """Check if game is over"""
-        return self.is_winner(board, 'X') or self.is_winner(board, 'O') or self.is_board_full(board)
-    
-    def evaluate(self, board):
-        """Evaluate board position"""
-        if self.is_winner(board, 'X'):
-            return 1  # X wins (maximizing player)
-        elif self.is_winner(board, 'O'):
-            return -1  # O wins (minimizing player)
+    def evaluate(self):
+        if self.is_winner('X'):
+            return 1
+        elif self.is_winner('O'):
+            return -1
         else:
-            return 0  # Draw
-    
-    def get_available_moves(self, board):
-        """Get list of available positions"""
-        return [i for i in range(9) if board[i] == ' ']
-    
-    def alpha_beta_pruning(self, board, depth, alpha, beta, maximizing_player):
-        """Alpha-beta pruning algorithm for tic-tac-toe"""
-        if self.is_terminal(board):
-            return self.evaluate(board)
-        
-        if maximizing_player:  # X's turn
-            max_eval = float('-inf')
-            for move in self.get_available_moves(board):
-                new_board = board.copy()
-                new_board[move] = 'X'
-                eval_score = self.alpha_beta_pruning(new_board, depth + 1, alpha, beta, False)
-                max_eval = max(max_eval, eval_score)
-                alpha = max(alpha, eval_score)
-                
-                if beta <= alpha:
-                    break  # Beta cutoff
-                    
-            return max_eval
-        else:  # O's turn
-            min_eval = float('inf')
-            for move in self.get_available_moves(board):
-                new_board = board.copy()
-                new_board[move] = 'O'
-                eval_score = self.alpha_beta_pruning(new_board, depth + 1, alpha, beta, True)
-                min_eval = min(min_eval, eval_score)
-                beta = min(beta, eval_score)
-                
-                if beta <= alpha:
-                    break  # Alpha cutoff
-                    
-            return min_eval
-    
-    def get_best_move(self, board, player):
-        """Get the best move using alpha-beta pruning"""
-        best_move = -1
-        if player == 'X':  # Maximizing player
-            best_value = float('-inf')
-            for move in self.get_available_moves(board):
-                new_board = board.copy()
-                new_board[move] = 'X'
-                move_value = self.alpha_beta_pruning(new_board, 0, float('-inf'), float('inf'), False)
-                if move_value > best_value:
-                    best_value = move_value
-                    best_move = move
-        else:  # Minimizing player
-            best_value = float('inf')
-            for move in self.get_available_moves(board):
-                new_board = board.copy()
-                new_board[move] = 'O'
-                move_value = self.alpha_beta_pruning(new_board, 0, float('-inf'), float('inf'), True)
-                if move_value < best_value:
-                    best_value = move_value
-                    best_move = move
-        
-        return best_move
-    
-    def play_game(self):
-        """Main game loop"""
-        print("Tic-Tac-Toe with AI!")
-        print("Positions are numbered 0-8:")
-        print(" 0 | 1 | 2 ")
-        print("-----------")
-        print(" 3 | 4 | 5 ")
-        print("-----------")
-        print(" 6 | 7 | 8 ")
-        print()
-        
-        while not self.is_terminal(self.board):
-            self.print_board()
-            
-            if self.current_player == 'X':
-                # Human player
-                try:
-                    move = int(input(f"Player {self.current_player}, enter position (0-8): "))
-                    if 0 <= move <= 8 and self.board[move] == ' ':
-                        self.board[move] = self.current_player
-                    else:
-                        print("Invalid move! Try again.")
-                        continue
-                except ValueError:
-                    print("Please enter a number!")
-                    continue
-            else:
-                # AI player
-                print("AI is thinking...")
-                move = self.get_best_move(self.board, self.current_player)
-                self.board[move] = self.current_player
-                print(f"AI chose position {move}")
-            
-            # Switch players
-            self.current_player = 'O' if self.current_player == 'X' else 'X'
-        
-        # Game over
-        self.print_board()
-        if self.is_winner(self.board, 'X'):
-            print("X wins!")
-        elif self.is_winner(self.board, 'O'):
-            print("O wins!")
-        else:
-            print("It's a draw!")
+            return 0
 
-# Run the game
-if __name__ == "__main__":
+def minimax_alpha_beta(game, depth, alpha, beta, maximizing_player):
+    if game.is_winner('X'):
+        return 1
+    if game.is_winner('O'):
+        return -1
+    if game.is_board_full() or depth == 0:
+        return 0
+    if maximizing_player:
+        max_eval = float('-inf')
+        for move in game.get_available_moves():
+            game.make_move(move, 'X')
+            eval_score = minimax_alpha_beta(game, depth - 1, alpha, beta, False)
+            game.undo_move(move)         
+            max_eval = max(max_eval, eval_score)
+            alpha = max(alpha, eval_score)
+            if beta <= alpha:
+                break
+        return max_eval
+    else:
+        min_eval = float('inf')
+        for move in game.get_available_moves():
+            game.make_move(move, 'O')
+            eval_score = minimax_alpha_beta(game, depth - 1, alpha, beta, True)
+            game.undo_move(move)
+            min_eval = min(min_eval, eval_score)
+            beta = min(beta, eval_score)
+            if beta <= alpha:
+                break
+        
+        return min_eval
+
+def get_best_move(game, player):
+    best_score = float('-inf') if player == 'X' else float('inf')
+    best_move = None
+    for move in game.get_available_moves():
+        game.make_move(move, player)
+        if player == 'X':
+            score = minimax_alpha_beta(game, 9, float('-inf'), float('inf'), False)
+            if score > best_score:
+                best_score = score
+                best_move = move
+        else:
+            score = minimax_alpha_beta(game, 9, float('-inf'), float('inf'), True)
+            if score < best_score:
+                best_score = score
+                best_move = move
+        
+        game.undo_move(move)
+    return best_move
+
+def main():
     game = TicTacToe()
-    game.play_game()
+    
+    while True:
+        game.print_board()
+        
+        if game.is_winner('X'):
+            print("X wins! (You Win!)")
+            break
+        elif game.is_winner('O'):
+            print("O wins! (AI Won.)")
+            break
+        elif game.is_board_full():
+            print("It's a tie!")
+            break
+        
+        if game.current_player == 'X':
+            try:
+                move = int(input(f"Player {game.current_player}, enter position (0-8): "))
+                if move < 0 or move > 8 or not game.make_move(move, game.current_player):
+                    print("Invalid move! Try again.")
+                    continue
+            except ValueError:
+                print("Please enter a number between 0-8.")
+                continue
+        else:
+            print("AI is thinking...")
+            move = get_best_move(game, game.current_player)
+            game.make_move(move, game.current_player)
+            print(f"AI chose position {move}")
+        game.current_player = 'O' if game.current_player == 'X' else 'X'
+
+if __name__ == "__main__":
+    main()
